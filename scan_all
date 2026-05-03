@@ -1,0 +1,83 @@
+#!/bin/bash
+# JARVIS Vision Tools - 자동 선택 래퍼 (보안 체크 포함)
+# 이미지 파일 → ocr_vision, 앱 이름/PID → ui_scan
+
+TOOL_DIR="$(dirname "$0")"
+CONFIG="$TOOL_DIR/config.yml"
+
+if [ -z "$1" ]; then
+    echo "Usage: scan_all <image_path|app_name|pid>"
+    echo ""
+    echo "이미지 파일 경로를 주면 ocr_vision 실행"
+    echo "앱 이름이나 PID를 주면 ui_scan 실행"
+    echo ""
+    echo "Examples:"
+    echo "  scan_all /path/to/screenshot.jpg   # 이미지 OCR"
+    echo "  scan_all Finder                     # 앱 UI 스캔"
+    echo "  scan_all 1234                       # PID로 스캔"
+    exit 1
+fi
+
+INPUT="$1"
+
+# 설정 파일이 없으면 차단
+if [ ! -f "$CONFIG" ]; then
+    echo "ERROR: config.yml not found. Scan blocked."
+    exit 1
+fi
+
+# 숫자면 PID로 간주 → 앱 이름 조회 후 허용 체크
+if [[ "$INPUT" =~ ^[0-9]+$ ]]; then
+    APP_NAME=$(ps -p "$INPUT" -o comm= 2>/dev/null | xargs basename 2>/dev/null)
+    if [ -z "$APP_NAME" ]; then
+        echo "ERROR: PID $INPUT not found."
+        exit 1
+    fi
+    # 허용 앱 체크
+    if ! grep -q "^  - $APP_NAME$" "$CONFIG"; then
+        echo "ERROR: App '$APP_NAME' (PID $INPUT) is not in allowed list."
+        echo "Add it to config.yml to allow."
+        exit 1
+    fi
+    exec "$TOOL_DIR/ui_scan" "$INPUT"
+fi
+
+# 파일이 존재하면 이미지로 간주 → 경로 허용 체크
+if [ -f "$INPUT" ]; then
+    REAL_PATH=$(realpath "$INPUT")
+    
+    # 금지 경로 체크
+    while IFS= read -r denied; do
+        denied=$(echo "$denied" | sed 's/^[[:space:]]*- //')
+        if [[ "$REAL_PATH" == "$denied"* ]]; then
+            echo "ERROR: Path '$REAL_PATH' is in denied list."
+            exit 1
+        fi
+    done < <(grep -A100 "denied_paths:" "$CONFIG" | grep "^  -")
+    
+    # 허용 경로 체크
+    ALLOWED=false
+    while IFS= read -r allowed; do
+        allowed=$(echo "$allowed" | sed 's/^[[:space:]]*- //')
+        if [[ "$REAL_PATH" == "$allowed"* ]]; then
+            ALLOWED=true
+            break
+        fi
+    done < <(grep -A100 "allowed_paths:" "$CONFIG" | grep "^  -")
+    
+    if [ "$ALLOWED" = false ]; then
+        echo "ERROR: Path '$REAL_PATH' is not in allowed list."
+        echo "Add it to config.yml to allow."
+        exit 1
+    fi
+    
+    exec "$TOOL_DIR/ocr_vision" "$INPUT"
+fi
+
+# 그 외는 앱 이름으로 간주 → 허용 앱 체크
+if ! grep -q "^  - $INPUT$" "$CONFIG"; then
+    echo "ERROR: App '$INPUT' is not in allowed list."
+    echo "Add it to config.yml to allow."
+    exit 1
+fi
+exec "$TOOL_DIR/ui_scan" "$INPUT"

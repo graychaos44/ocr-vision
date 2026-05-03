@@ -1,0 +1,29 @@
+# JARVIS Vision Tools - 허용 목록 보안
+# 이 파일이 없으면 기본적으로 차단됨
+
+# ui_scan 허용 앱 목록
+allowed_apps:
+  - Finder
+  - Safari
+  - Chrome
+  - Terminal
+  - Xcode
+  - System Preferences
+  - OpusMessenger
+  - Telegram
+  - Discord
+
+# ocr_vision 허용 경로 (이 경로 아래의 이미지만 스캔)
+allowed_paths:
+  - /tmp/
+  - /Users/gray/.openclaw/media/
+  - /Users/gray/Desktop/
+  - /Users/gray/Downloads/
+  - /Users/gray/screenshots/
+
+# 금지된 경로 (절대 스캔 불가)
+denied_paths:
+  - /Users/gray/.ssh/
+  - /Users/gray/.gnupg/
+  - /Users/gray/.passwords/
+  - /Users/gray/Private/
