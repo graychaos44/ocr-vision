@@ -1,8 +1,17 @@
 # JARVIS Vision Tools
 
-macOS Vision + Accessibility API 기반 UI 스캐닝 도구. 비전 모델 없이 로컬에서 스크린샷과 실행 중인 앱의 UI를 분석.
+macOS Vision + Accessibility API 기반 UI 스캐닝 도구. 비전 모델 없이 로컬에서 스크린샷과 실행 중인 앱의 UI를 분석합니다.
 
-## 빠른 설치
+## ✨ 특징
+
+- 🚀 **초고속**: ~0.7초 (Apple Silicon)
+- 💾 **무료**: macOS 내장 API 사용
+- 🔒 **프라이빗**: 로컬 처리, 외부 서버 없음
+- 🌐 **다국어**: 한국어 + 영어 OCR 지원
+- 📊 **정확**: 픽셀 단위 좌표, 신뢰도 포함
+- 🎨 **UI 요소 분류**: 버튼/입력창/경고 등 자동 구분
+
+## 📦 빠른 설치
 
 ```bash
 git clone https://github.com/graychaos44/ocr-vision.git
@@ -11,36 +20,18 @@ chmod +x install.sh
 sudo ./install.sh /usr/local/bin
 ```
 
-## 도구
+## 🛠️ 도구
 
-### ocr_vision — 이미지 스캐너
-스크린샷/이미지에서 텍스트, 사각형, 바코드, 색상, 장면 분류를 추출.
+### 1. ocr_vision — 이미지 스캐너
 
+스크린샷/이미지에서 텍스트, 사각형, 바코드, 색상, 장면 분류를 추출합니다.
+
+**실행:**
 ```bash
 ocr_vision /path/to/image.jpg
 ```
 
-### ui_scan — 앱 UI 스캐너
-실행 중인 앱의 UI 요소를 트리 구조로 읽기.
-
-```bash
-ui_scan Finder
-ui_scan Safari
-ui_scan 1234   # PID
-```
-
-### scan_all — 자동 선택 래퍼
-입력에 따라 자동으로 ocr_vision 또는 ui_scan 실행.
-
-```bash
-scan_all /path/to/screenshot.jpg   # 이미지 → ocr_vision
-scan_all Finder                    # 앱 이름 → ui_scan
-scan_all 1234                      # PID → ui_scan
-```
-
-## 출력 예시
-
-### ocr_vision
+**출력 (JSON):**
 ```json
 {
   "dimensions": { "width": 1920, "height": 1080 },
@@ -50,7 +41,9 @@ scan_all 1234                      # PID → ui_scan
   "rectangles": [
     { "x": 50, "y": 180, "width": 200, "height": 60, "confidence": "0.95" }
   ],
-  "barcodes": [],
+  "barcodes": [
+    { "type": "QR", "value": "https://...", "x": 100, "y": 100, "width": 50, "height": 50 }
+  ],
   "labels": [
     { "label": "screenshot", "confidence": "0.97" }
   ],
@@ -58,7 +51,30 @@ scan_all 1234                      # PID → ui_scan
 }
 ```
 
-### ui_scan
+**기능:**
+| 기능 | 설명 |
+|------|------|
+| 텍스트 OCR | 한국어+영어, 좌표 포함 |
+| 사각형 감지 | UI 테두리, 선, 박스 |
+| 바코드/QR | 코드 내용까지 읽음 |
+| 장면 분류 | screenshot, document 등 |
+| 주요 색상 | 배경색 RGB + HEX |
+| UI 요소 분류 | 버튼/입력창/경고 자동 구분 |
+
+---
+
+### 2. ui_scan — 앱 UI 스캐너
+
+Accessibility API로 실행 중인 앱의 UI 요소를 트리 구조로 읽습니다.
+
+**실행:**
+```bash
+ui_scan Finder
+ui_scan Safari
+ui_scan 1234   # PID
+```
+
+**출력 (JSON):**
 ```json
 [
   {
@@ -67,40 +83,152 @@ scan_all 1234                      # PID → ui_scan
     "x": 100, "y": 200,
     "width": 800, "height": 600,
     "children": [
-      { "role": "AXButton", "description": "Save", "x": 50, "y": 10, "width": 80, "height": 30 }
+      { "role": "AXButton", "description": "Save", "x": 50, "y": 10, "width": 80, "height": 30 },
+      { "role": "AXTextField", "value": "입력값", "x": 50, "y": 50, "width": 200, "height": 30 }
     ]
   }
 ]
 ```
 
-## 비전 모델과 비교
+**감지 가능한 UI 요소:**
+| 타입 | 설명 |
+|------|------|
+| AXWindow | 윈도우 |
+| AXButton | 버튼 |
+| AXStaticText | 텍스트 라벨 |
+| AXTextField | 입력창 |
+| AXMenuButton | 메뉴 버튼 |
+| AXScrollArea | 스크롤 영역 |
+| AXToolbar | 툴바 |
+| AXImage | 이미지 |
+| AXGroup | 그룹 |
+
+---
+
+### 3. scan_all — 자동 선택 래퍼
+
+입력에 따라 자동으로 ocr_vision 또는 ui_scan 실행합니다.
+
+**실행:**
+```bash
+# 이미지 경로 → ocr_vision
+scan_all /path/to/screenshot.jpg
+
+# 앱 이름 → ui_scan
+scan_all Finder
+
+# PID → ui_scan
+scan_all 1234
+```
+
+---
+
+## ⚙️ 설정
+
+`config.yml`로 보안 설정을 관리합니다.
+
+```yaml
+# scan_mode: "restricted" (기본) 또는 "full" (전체 허용)
+scan_mode: restricted
+
+# ui_scan 허용 앱 목록 (restricted 모드에서만 적용)
+allowed_apps:
+  - Finder
+  - Safari
+  - Chrome
+  - Terminal
+  - Xcode
+  - System Preferences
+  - OpusMessenger
+  - Telegram
+  - Discord
+
+# ocr_vision 허용 경로 (restricted 모드에서만 적용)
+allowed_paths:
+  - /tmp/
+  - /Users/gray/.openclaw/media/
+  - /Users/gray/Desktop/
+  - /Users/gray/Downloads/
+  - /Users/gray/screenshots/
+
+# 금지된 경로 (모든 모드에서 절대 스캔 불가)
+denied_paths:
+  - /Users/gray/.ssh/
+  - /Users/gray/.gnupg/
+  - /Users/gray/.passwords/
+  - /Users/gray/Private/
+
+# 전체 화면 스캔 허용 (screencapture)
+full_screen: true
+```
+
+---
+
+## 🔐 권한 설정
+
+### 1. 화면 녹화 권한 (ocr_vision용)
+- 시스템 설정 → 개인정보 보호 및 보안 → 화면 녹화
+- 터미널 또는 OpenClaw 허용
+
+### 2. 접근성 권한 (ui_scan용)
+- 시스템 설정 → 개인정보 보호 및 보안 → 접근성
+- 터미널 또는 OpenClaw 허용
+
+---
+
+## 📊 비전 모델과 비교
 
 | 항목 | 비전 모델 | ocr_vision + ui_scan |
 |------|-----------|----------------------|
 | 텍스트 인식 | O | O (더 정확) |
 | UI 요소 타입 | 대략 | 정확 (AXRole) |
-| 좌표 | 대략 | 픽셀 단위 |
+| 버튼 감지 | 대략 | 정확 (AXButton) |
+| 입력창 감지 | 대략 | 정확 (AXTextField) |
+| 좌표 | 대략 | 픽셀 단위 정확 |
 | 색상 | X | O |
 | 이미지 설명 | O | X |
-| RAM | 28GB+ | 0 |
-| GPU | 99% | 0% |
+| RAM 사용 | 28GB+ | 0 (로컬) |
+| GPU 사용 | 99% | 0% |
 | 속도 | 10초+ | 0.7초 |
 | 비용 | 유료 | 무료 |
 
-## 권한 설정
+---
 
-1. 시스템 설정 → 개인정보 보호 및 보안
-2. 화면 녹화 → 터미널/OpenClaw 허용 (ocr_vision 스크린샷용)
-3. 접근성 → 터미널/OpenClaw 허용 (ui_scan용)
+## 💡 사용 시나리오
 
-## 요구사항
+### 스크린샷 분석 (ocr_vision)
+```
+1. 사용자가 스크린샷 전송
+2. ocr_vision으로 텍스트+좌표 추출
+3. 결과를 LLM 컨텍스트에 전달
+4. LLM이 스크린샷 내용 설명
+```
+
+### 실행 중인 앱 UI 분석 (ui_scan)
+```
+1. ui_scan으로 앱 UI 트리 스캔
+2. 버튼/입력창/라벨 위치 파악
+3. LLM이 UI 구조 이해
+4. 필요시 자동화 스크립트 작성
+```
+
+### 두 도구 조합
+- 스크린샷만 있으면 → ocr_vision
+- 실행 중인 앱이면 → ui_scan (더 정확)
+- 둘 다 있으면 → 교차 검증 가능
+
+---
+
+## 📋 요구사항
 
 - macOS 14.0+ (Sonoma)
 - Xcode Command Line Tools
 - 접근성 권한 (ui_scan)
 - 화면 녹화 권한 (screencapture)
 
-## 확장 가능
+---
+
+## 🚀 향후 확장 가능
 
 - 얼굴 감지 (VNFaceObservation)
 - 바코드 추가 포맷
@@ -108,6 +236,33 @@ scan_all 1234                      # PID → ui_scan
 - Accessibility API 자동 클릭/타이핑
 - 두 도구 결과를 하나의 JSON으로 병합
 
-## 라이선스
+---
 
-MIT
+## 📁 파일 구조
+
+```
+vision-tools/
+├── README.md           # 이 파일
+├── MANUAL.md           # 상세 매뉴얼
+├── UPGRADE_MANUAL.md   # 업그레이드 가이드
+├── config.yml          # 보안 설정
+├── ocr_vision.swift    # OCR 소스
+├── ui_scan.swift       # UI 스캔 소스
+├── scan_all            # 자동 선택 래퍼
+├── install.sh          # 설치 스크립트
+└── .gitignore          # Git 무시 파일
+```
+
+---
+
+## 🔗 관련 링크
+
+- GitHub: https://github.com/graychaos44/ocr-vision
+- Apple Vision Framework: https://developer.apple.com/documentation/vision
+- Apple Accessibility API: https://developer.apple.com/documentation/appkit/accessibility
+
+---
+
+## 📄 라이선스
+
+MIT License
