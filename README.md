@@ -22,6 +22,16 @@ chmod +x install.sh
 sudo ./install.sh /usr/local/bin
 ```
 
+## ⌨️ 단축키
+
+| 단축키 | 기능 |
+|--------|------|
+| ⌘⇧⌥V | 부분 크롭 (기본) |
+| ⌘⇧⌥F | 전체 화면 |
+| ⌘⇧⌥W | 활성 창 |
+
+**참고:** 단축키가 작동하지 않으면 `./setup_shortcuts.sh`를 실행하세요.
+
 ## 🛠️ 도구
 
 ### 1. ocr_vision — 이미지 스캐너
@@ -121,6 +131,39 @@ scan_all Finder
 
 # PID → ui_scan
 scan_all 1234
+```
+
+### 4. jarvis_screenshot — 스크린샷 도구
+
+부분 크롭, 전체 화면, 활성 창 스크린샷을 지원합니다.
+
+**실행:**
+```bash
+# 부분 크롭 (기본)
+jarvis_screenshot
+
+# 전체 화면
+jarvis_screenshot full
+
+# 활성 창
+jarvis_screenshot window
+
+# 특정 앱
+jarvis_screenshot app Safari
+```
+
+**단축키:**
+- ⌘⇧⌥V - 부분 크롭 (기본)
+- ⌘⇧⌥F - 전체 화면
+- ⌘⇧⌥W - 활성 창
+
+### 5. setup_shortcuts.sh — 단축키 설정
+
+단축키를 설정합니다.
+
+**실행:**
+```bash
+./setup_shortcuts.sh
 ```
 
 ### 4. merge_results — 결과 통합 도구

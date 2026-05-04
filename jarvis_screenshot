@@ -1,0 +1,169 @@
+#!/bin/bash
+# JARVIS Vision Tools - 스크린샷 도구 (단축키: ⌘⇧⌥V)
+# 부분 크롭, 전체 화면, 활성 창 스캔 지원
+
+TOOL_DIR="$(dirname "$0")"
+CONFIG="$TOOL_DIR/config.yml"
+SCREENSHOT_DIR="/tmp/jarvis_screenshots"
+mkdir -p "$SCREENSHOT_DIR"
+
+# 설정 읽기
+get_config() {
+    local key="$1"
+    local value=$(grep "^$key:" "$CONFIG" 2>/dev/null | awk '{print $2}')
+    echo "$value"
+}
+
+# 도움말
+show_help() {
+    echo "JARVIS Vision Tools - 스크린샷 도구"
+    echo ""
+    echo "사용법:"
+    echo "  jarvis_screenshot              # 부분 크롭 (기본)"
+    echo "  jarvis_screenshot full        # 전체 화면"
+    echo "  jarvis_screenshot window       # 활성 창"
+    echo "  jarvis_screenshot app <이름>  # 특정 앱"
+    echo ""
+    echo "단축키:"
+    echo "  ⌘⇧⌥V  - 부분 크롭 (기본)"
+    echo "  ⌘⇧⌥F  - 전체 화면"
+    echo "  ⌘⇧⌥W  - 활성 창"
+    echo ""
+    echo "예시:"
+    echo "  jarvis_screenshot"
+    echo "  jarvis_screenshot full"
+    echo "  jarvis_screenshot app Safari"
+    exit 0
+}
+
+# 활성화된 앱 목록 가져오기
+get_active_apps() {
+    osascript -e 'tell application "System Events" to get name of every process whose background only is false' 2>/dev/null | tr ',' '\n' | sed 's/^ *//'
+}
+
+# 활성 창 정보 가져오기
+get_active_window() {
+    local app_name="$1"
+    osascript -e "tell application \"$app_name\" to get name of front window" 2>/dev/null
+}
+
+# 부분 크롭 스크린샷
+screenshot_partial() {
+    local timestamp=$(date +%s)
+    local output="$SCREENSHOT_DIR/partial_$timestamp.png"
+    
+    # screencapture로 부분 크롭
+    screencapture -i "$output" 2>/dev/null
+    
+    if [ -f "$output" ]; then
+        echo "$output"
+    else
+        echo "ERROR: 부분 크롭 실패"
+        exit 1
+    fi
+}
+
+# 전체 화면 스크린샷
+screenshot_full() {
+    local timestamp=$(date +%s)
+    local output="$SCREENSHOT_DIR/full_$timestamp.png"
+    
+    screencapture -x "$output" 2>/dev/null
+    
+    if [ -f "$output" ]; then
+        echo "$output"
+    else
+        echo "ERROR: 전체 화면 캡처 실패"
+        exit 1
+    fi
+}
+
+# 활성 창 스크린샷
+screenshot_window() {
+    local timestamp=$(date +%s)
+    local output="$SCREENSHOT_DIR/window_$timestamp.png"
+    
+    # 활성화된 앱 찾기
+    local active_app=$(osascript -e 'tell application "System Events" to get name of first process whose frontmost is true' 2>/dev/null)
+    
+    if [ -z "$active_app" ]; then
+        echo "ERROR: 활성화된 앱을 찾을 수 없음"
+        exit 1
+    fi
+    
+    # 창 스크린샷
+    screencapture -l$(osascript -e "tell application \"$active_app\" to id of front window" 2>/dev/null) -x "$output" 2>/dev/null
+    
+    if [ -f "$output" ]; then
+        echo "$output"
+    else
+        echo "ERROR: 창 캡처 실패"
+        exit 1
+    fi
+}
+
+# 특정 앱 스크린샷
+screenshot_app() {
+    local app_name="$1"
+    local timestamp=$(date +%s)
+    local output="$SCREENSHOT_DIR/${app_name}_$timestamp.png"
+    
+    # 앱이 실행 중인지 확인
+    if ! pgrep -x "$app_name" > /dev/null; then
+        echo "ERROR: 앱 '$app_name'이 실행 중이 아님"
+        exit 1
+    fi
+    
+    # 창 스크린샷
+    screencapture -l$(osascript -e "tell application \"$app_name\" to id of front window" 2>/dev/null) -x "$output" 2>/dev/null
+    
+    if [ -f "$output" ]; then
+        echo "$output"
+    else
+        echo "ERROR: 앱 캡처 실패"
+        exit 1
+    fi
+}
+
+# OCR 실행
+run_ocr() {
+    local image_path="$1"
+    local result
+    
+    if [ -f "$image_path" ]; then
+        result=$("$TOOL_DIR/ocr_vision" "$image_path" 2>&1)
+        echo "$result"
+    else
+        echo "ERROR: 이미지 파일을 찾을 수 없음: $image_path"
+        exit 1
+    fi
+}
+
+# 메인
+case "$1" in
+    help|--help|-h)
+        show_help
+        ;;
+    full|--full)
+        screenshot_full
+        ;;
+    window|--window)
+        screenshot_window
+        ;;
+    app|--app)
+        if [ -z "$2" ]; then
+            echo "ERROR: 앱 이름을 지정해주세요"
+            echo "사용법: jarvis_screenshot app <앱이름>"
+            exit 1
+        fi
+        screenshot_app "$2"
+        ;;
+    "")
+        screenshot_partial
+        ;;
+    *)
+        echo "ERROR: 알 수 없는 옵션: $1"
+        echo "도움말을 보려면: jarvis_screenshot help"
+        exit 1
+        ;;
+esac
