@@ -1,0 +1,60 @@
+[
+  {
+    "role": "AXWindow",
+    "title": "Login Dialog",
+    "x": 50,
+    "y": 20,
+    "width": 400,
+    "height": 300,
+    "children": [
+      {
+        "role": "AXButton",
+        "description": "Save",
+        "x": 90,
+        "y": 40,
+        "width": 100,
+        "height": 40
+      },
+      {
+        "role": "AXButton",
+        "description": "Cancel",
+        "x": 190,
+        "y": 40,
+        "width": 100,
+        "height": 40
+      },
+      {
+        "role": "AXStaticText",
+        "value": "Username",
+        "x": 100,
+        "y": 100,
+        "width": 100,
+        "height": 20
+      },
+      {
+        "role": "AXTextField",
+        "value": "",
+        "x": 90,
+        "y": 90,
+        "width": 200,
+        "height": 30
+      },
+      {
+        "role": "AXStaticText",
+        "value": "Password",
+        "x": 100,
+        "y": 150,
+        "width": 100,
+        "height": 20
+      },
+      {
+        "role": "AXTextField",
+        "value": "",
+        "x": 90,
+        "y": 140,
+        "width": 200,
+        "height": 30
+      }
+    ]
+  }
+]

@@ -1,0 +1,121 @@
+{
+  "dimensions": {
+    "width": 1920,
+    "height": 1080
+  },
+  "texts": [
+    {
+      "text": "Save",
+      "confidence": "0.99",
+      "x": 100,
+      "y": 50,
+      "width": 80,
+      "height": 30
+    },
+    {
+      "text": "Cancel",
+      "confidence": "0.98",
+      "x": 200,
+      "y": 50,
+      "width": 80,
+      "height": 30
+    },
+    {
+      "text": "Username",
+      "confidence": "0.97",
+      "x": 100,
+      "y": 100,
+      "width": 100,
+      "height": 20
+    },
+    {
+      "text": "Password",
+      "confidence": "0.96",
+      "x": 100,
+      "y": 150,
+      "width": 100,
+      "height": 20
+    }
+  ],
+  "rectangles": [
+    {
+      "x": 90,
+      "y": 40,
+      "width": 100,
+      "height": 40,
+      "confidence": "0.95"
+    },
+    {
+      "x": 190,
+      "y": 40,
+      "width": 100,
+      "height": 40,
+      "confidence": "0.94"
+    },
+    {
+      "x": 90,
+      "y": 90,
+      "width": 200,
+      "height": 30,
+      "confidence": "0.93"
+    },
+    {
+      "x": 90,
+      "y": 140,
+      "width": 200,
+      "height": 30,
+      "confidence": "0.92"
+    }
+  ],
+  "barcodes": [],
+  "labels": [
+    {
+      "label": "screenshot",
+      "confidence": "0.97"
+    }
+  ],
+  "dominant_color": {
+    "r": 242,
+    "g": 243,
+    "b": 242,
+    "hex": "#F2F3F2"
+  },
+  "ui_elements": [
+    {
+      "x": 90,
+      "y": 40,
+      "width": 100,
+      "height": 40,
+      "confidence": "0.95",
+      "color_type": "button_blue",
+      "text": "Save"
+    },
+    {
+      "x": 190,
+      "y": 40,
+      "width": 100,
+      "height": 40,
+      "confidence": "0.94",
+      "color_type": "button_gray",
+      "text": "Cancel"
+    },
+    {
+      "x": 90,
+      "y": 90,
+      "width": 200,
+      "height": 30,
+      "confidence": "0.93",
+      "color_type": "input_field",
+      "text": "Username"
+    },
+    {
+      "x": 90,
+      "y": 140,
+      "width": 200,
+      "height": 30,
+      "confidence": "0.92",
+      "color_type": "input_field",
+      "text": "Password"
+    }
+  ]
+}
