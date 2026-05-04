@@ -337,21 +337,64 @@ full_screen: true
 
 ```
 vision-tools/
-├── README.md           # 이 파일
-├── USAGE_GUIDE.md      # 사용 가이드
-├── API_REFERENCE.md    # API 레퍼런스
-├── MANUAL.md           # 상세 매뉴얼
-├── UPGRADE_MANUAL.md   # 업그레이드 가이드
-├── FINAL_REPORT.md     # 최종 보고서
-├── config.yml          # 보안 설정
-├── ocr_vision.swift    # OCR 소스
-├── ui_scan.swift       # UI 스캔 소스
-├── merge_results.swift # 결과 통합 소스
-├── benchmark.swift     # 성능 벤치마킹 소스
-├── test_accuracy.swift # 정확도 테스트 소스
-├── scan_all            # 자동 선택 래퍼
-├── install.sh          # 설치 스크립트
-└── .gitignore          # Git 무시 파일
+├── README.md                  # 이 파일
+├── USAGE_GUIDE.md             # 사용 가이드
+├── API_REFERENCE.md           # API 레퍼런스
+├── MANUAL.md                  # 상세 매뉴얼
+├── UPGRADE_MANUAL.md          # 업그레이드 가이드
+├── FINAL_REPORT.md            # 최종 보고서
+├── config.yml                 # 보안 설정
+├── ocr_vision.swift           # OCR 소스
+├── ui_scan.swift              # UI 스캔 소스
+├── merge_results.swift        # 결과 통합 소스
+├── benchmark.swift            # 성능 벤치마킹 소스
+├── test_accuracy.swift        # 정확도 테스트 소스
+├── scan_all                   # 자동 선택 래퍼
+├── install.sh                 # 설치 스크립트
+├── .gitignore                 # Git 무시 파일
+└── MacOCRApp/                 # 🆕 macOS 네이티브 GUI 앱
+    ├── Package.swift          # SPM 패키지 정의
+    ├── Sources/
+    │   └── OCRVisionApp/
+    │       └── OCRVisionApp.swift
+    └── Tests/
+```
+
+---
+
+## 🖥️ Mac Native GUI 앱
+
+### MacOCRApp — SwiftUI 기반 네이티브 앱
+
+기존 CLI 도구들을 SwiftUI로 래핑한 macOS 네이티브 앱입니다.
+
+#### 기능
+- **4가지 스캔 모드**: 부분 크롭 / 선택한 곳 / 프로그램 창 / 전체 화면
+- **전역 핫키**: ⌘⇧1~4 로 빠른 스캔
+- **실시간 결과**: JSON 출력 + 클립보드 자동 복사
+- **UI 요소 분류**: 버튼/입력창/라벨 자동 구분
+
+#### 설치
+```bash
+cd MacOCRApp
+swift build
+swift run
+```
+
+#### Xcode로 빌드
+```bash
+cd MacOCRApp
+open Package.swift  # Xcode에서 열기
+```
+
+#### 폴더 구조
+```
+MacOCRApp/
+├── Package.swift              # SPM 패키지 정의
+├── Sources/
+│   └── OCRVisionApp/
+│       └── OCRVisionApp.swift # 메인 앱 소스
+└── Tests/
 ```
 
 ---
